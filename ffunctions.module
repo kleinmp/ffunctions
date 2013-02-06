@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ *  Module that contains helpful utility functions.
+ */
+ 
+require_once 'ffunctions.inc';
+
+/**
+ *
+ */
+function ffunctions_drupal_log_message($message) {
+  if (!$log = variable_get('ffunctions_log', FALSE)) {
+    $log = getcwd() . '/logs/test.log'
+  }
+  ffunctions_log_message($log, $message);
+}
