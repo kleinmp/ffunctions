@@ -33,26 +33,3 @@ function ffunctions_links_get_formatted_date($date_string, $format = 'c', $timez
   $date->setTimeZone(new DateTimeZone($timezone_to));
   return $date->format($format);
 }
-
-/**
- * Determine if an event is all day or not.
- *
- * @param array $date
- *  The loaded field date field data. This must include
- *  value, value2, timezone, timezone_db.
- * @param string $granularity
- *   (optional) The granularity of the date. Defaults to 'second'.
- *
- * @return boolean
- *  Whether or not this is an all day date.
- */
-function ffunctions_links_date_is_all_day($date, $granularity = 'second') {
-  if (!module_exists('date_all_day')) {
-    return FALSE;
-  }
-
-  $format = 'Y-m-d H:i:s';
-  $from = ffunctions_links_get_formatted_date($date['value'], $format, $date['timezone'], $date['timezone_db']);
-  $to = $date['value'] == $date['value2'] ? $from :  ffunctions_links_get_formatted_date($date['value2'], $format, $date['timezone'], $date['timezone_db']);
-  return date_is_all_day($from, $to, $granularity);
-}
