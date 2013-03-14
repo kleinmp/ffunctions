@@ -34,7 +34,7 @@ function ffunctions_log_message($log, $message) {
  * @return string
  *  The date in the format provided in the the given timezone($timezone_to).
  */
-function ffunctions_links_get_formatted_date($date_string, $format = 'c', $timezone_to = 'UTC', $timezone_from = 'UTC') {
+function ffunctions_get_formatted_date($date_string, $format = 'c', $timezone_to = 'UTC', $timezone_from = 'UTC') {
   $date = new DateTime($date_string, new DateTimeZone($timezone_from));
   $date->setTimeZone(new DateTimeZone($timezone_to));
   return $date->format($format);
