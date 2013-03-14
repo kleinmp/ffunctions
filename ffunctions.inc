@@ -92,3 +92,16 @@ function ffunctions_cidr_match($ip, $range) {
   $subnet &= $mask;
   return ($ip & $mask) == $subnet;
 }
+
+/**
+ * Clone an object that contains nested objects (recursive in a sense).
+ *
+ * @param object $object
+ *  The object to clone.
+ *
+ * @return object
+ *  A copy of the object.
+ */
+function ffunctions_deep_clone($object) {
+  return unserialize(serialize($object));
+}
