@@ -41,6 +41,59 @@ function ffunctions_get_formatted_date($date_string, $format = 'c', $timezone_to
 }
 
 /**
+ * Compute the number of business days between (and including) two dates.
+ *
+ *  Note that this does not take holidays into account.
+ *
+ * @param int|string $start
+ *  Preferably a data string compatible with strtotime,
+ *  but can also be timestamp.
+ * @param int|string $end
+ *  Preferably a data string compatible with strtotime,
+ *  but can also be timestamp.
+ */
+function ffunctions_get_business_day_count($start, $end) {
+  $start = !is_int($start) ? strtotime($start) : $start;
+  $end = !is_int($end) ? strtotime($end) : $end;
+
+  $total_days = ($end - $start) / 86400 + 1;
+  $first_day = date('N', $start);
+  $last_day = date('N', $end);
+  $full_weeks = floor($total_days / 7);
+  $extra_days = fmod($total_days, 7);
+
+  // Check if the first and last day are within the same week.
+  if ($first_day <= $last_day) {
+    // Subtract a day if last day is on Saturday or later.
+    if ($first_day <= 6 && 6 <= $last_day) {
+      $extra_days--;
+    }
+    // Subtract a day if last day is on Sunday.
+    if ($first_day <= 7 && 7 <= $last_day) {
+      $extra_days--;
+    }
+  }
+  else {
+    // We're not in the same week, so the count will
+    // be different depending on the first day.
+    if ($first_day == 7) {
+      $extra_days--;
+      if ($last_day == 6) {
+        $extra_days--;
+      }
+    }
+    else {
+      // If the first day is not Sunday, then we subtract both weekend days.
+      $extra_days -= 2;
+    }
+  }
+
+  // Add up the the days in the full weeks and the extra days.
+  $day_count = 5*$full_weeks + ($extra_days > 0 ? $extra_days : 0);
+  return $day_count;
+}
+
+/**
  * Find a single url in an html string
  */
 function ffunctions_find_url($string, $attribute = 'src', $modifiers = '') {
