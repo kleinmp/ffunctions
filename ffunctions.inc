@@ -104,7 +104,7 @@ function ffunctions_find_url($string, $attribute = 'src', $modifiers = '') {
 }
 
 /**
- * Access callback for determining if  given ip matches the allowed ips.
+ * Access callback for determining if given ip matches the allowed ips.
  *
  * @param array
  *  A list of ips in a list or cidr notation (e.g. array('45.45.45.45/26'))
@@ -112,8 +112,7 @@ function ffunctions_find_url($string, $attribute = 'src', $modifiers = '') {
  *   Whether or not the ip is allowed.
  */
 function ffunctions_ip_is_allowed($allowed_ips) {
-  // @todo: Won't work properly with a proxy server.
-  $ip = $_SERVER['REMOTE_ADDR'];
+  $ip = !empty($_SERVER['HTTP_X_FORWARD_FOR']) ? $_SERVER['HTTP_X_FORWARD_FOR'] : $_SERVER['REMOTE_ADDR'];
   $access = FALSE;
   if (in_array($ip, $allowed_ips, TRUE)) {
     $access = TRUE;
