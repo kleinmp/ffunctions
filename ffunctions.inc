@@ -20,23 +20,35 @@ function ffunctions_log_message($log, $message) {
 }
 
 /**
- * Convert a date string to any given format.
+ * Convert a date string or timestamp to any given format.
  *
  * @param string $date_string
- *  A date string that is readable by php.
+ *  A date string that is readable by php or a UNIX timestamp.
  * @param string $format
  *  A valid date format as defined in php's date function.
- * @param string $timezone_to
- *  The timezone for the returned date value.
- * @param string $timezone_from
- *  The timezone that the date_string is currently in.
+ * @param array $options
+ *  (optional) timezone_to - The timezone for the returned date value.
+ *  (optional) timezone_from - The timezone that the date_string is currently in.
+ *  (optional) timestamp - Whether or not this is a UNIX timestamp.
  *
  * @return string
- *  The date in the format provided in the the given timezone($timezone_to).
+ *  The date in the format provided in the the given timezone(timezone_to).
  */
-function ffunctions_get_formatted_date($date_string, $format = 'c', $timezone_to = 'UTC', $timezone_from = 'UTC') {
-  $date = new DateTime($date_string, new DateTimeZone($timezone_from));
-  $date->setTimeZone(new DateTimeZone($timezone_to));
+function ffunctions_get_formatted_date($date_string, $format = 'c', $options = array()) {
+  // Combine defaults with given options.
+  $options += array(
+    'timezone_to' => 'UTC',
+    'timezone_from' => 'UTC',
+    'timestamp' => FALSE,
+  );
+
+  // Special handlng of timestamps
+  if (!empty($options['timestamp'])) {
+    $date_string = "@$date_string";
+    $options['timezone_from'] = date_default_timezone_get();
+  }
+  $date = new DateTime($date_string, new DateTimeZone($options['timezone_from']));
+  $date->setTimeZone(new DateTimeZone($options['timezone_to']));
   return $date->format($format);
 }
 
