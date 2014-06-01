@@ -1,0 +1,151 @@
+<?php
+
+/**
+ * @file
+ * Module file for dev utility module.
+ */
+
+/**
+ * Set up the configuration for local development.
+ */
+function ffunctions_devel_setup_dev_site() {
+  ffunctions_devel_disable_modules();
+  ffunctions_devel_enable_modules();
+  ffunctions_devel_variable_set();
+  ffunctions_devel_change_permissions();
+  drupal_flush_all_caches();
+}
+
+/**
+ * Invoke a hook and its alter.
+ *
+ * @param string $hook
+ *  The name of the hook to invoke.
+ *
+ * @return array
+ *  The compiled data from the hook that was invoked.
+ */
+function ffunctions_devel_invoke_hook($hook) {
+  $data = module_invoke_all($hook);
+  drupal_alter($hook, $data);
+  return $data;
+}
+
+
+/** Functions for setting up dev site **/
+
+/**
+ * Get a list of modules to enable and do it.
+ */
+function ffunctions_devel_enable_modules() {
+  $modules = ffunctions_devel_invoke_hook(__FUNCTION__);
+  if (!empty($modules)) {
+    module_enable($modules);
+    devel_set_message(t('Enabled modules @modules', array('@modules' => implode(', ', $modules))));
+  }
+}
+
+/**
+ * Get a list of modules to disable and do it.
+ */
+function ffunctions_devel_disable_modules() {
+  $modules = ffunctions_devel_invoke_hook(__FUNCTION__);
+  if (!empty($modules)) {
+    module_disable($modules);
+    devel_set_message(t('Disabled modules @modules', array('@modules' => implode(', ', $modules))));
+  }
+}
+
+/**
+ * Set variable values.
+ */
+function ffunctions_devel_variable_set() {
+  $vars = ffunctions_devel_invoke_hook(__FUNCTION__);
+  if (!empty($vars)) {
+    foreach ($vars as $var => $value) {
+      variable_set($var, $value);
+      $message_value = (is_array($value) || is_object($value)) ? print_r($value, TRUE) : $value;
+      devel_set_message(t('Set variable @variable to @value', array('@variable' => $var, '@value' => $message_value)));
+    }
+  }
+}
+
+/**
+ * Get a list of permissions to add/revoke.
+ */
+function ffunctions_devel_change_permissions() {
+  $perms = ffunctions_devel_invoke_hook(__FUNCTION__);
+  
+  if (!empty($perms)) {
+    user_role_change_permissions($rid, $permissions = array());
+  }
+
+   // Write the updated permissions.
+  foreach (user_roles() as $rid => $role) {
+    if (isset($perms[$rid])) {
+      user_role_change_permissions($rid, $perms[$rid]);
+      devel_set_message(t('Set new permissions on role @rid - @perms', array('@rid' => $rid, '@perms' => print_r($perms[$rid], TRUE))));
+    }
+  }
+}
+
+/**
+ * Set passwords on users.
+ */
+function ffunctions_devel_set_user_passwords() {
+  $accounts = ffunctions_devel_invoke_hook(__FUNCTION__);
+  
+  if (!empty($accounts)) {
+    foreach ($accounts as $name => $pass) {
+      $account = user_load_by_name($name);
+      if (!empty($account)) {
+        if (user_save($account, array('pass' => $pass))) {
+          devel_set_message(t('Set password on @name', array('@name' => $name)));
+        }
+        else {
+          devel_set_message(t('Failed setting password on @name', array('@name' => $name)));
+        }
+      }
+    }
+  }
+}
+
+
+/** Hook Implementations **/
+
+/**
+ * Implements ffunctions_devel_set_user_passwords().
+ */
+function ffunctions_devel_ffunctions_devel_set_user_passwords() {
+  return array(
+    'admin' => 'admin',
+  );
+}
+
+/**
+ * Implements hook_ffunctions_devel_change_permissions()/
+ */
+function ffunctions_devel_ffunctions_devel_change_permissions() {
+  // @todo: see hook_modules_installed in case needed here.
+  $perms = array(
+    'access devel information' => 'access devel information',
+    'execute php code' => 'execute php code',
+    'switch users' => 'switch users',
+  );
+  return array(
+    DRUPAL_ANONYMOUS_RID => $perms,
+    DRUPAL_AUTHENTICATED_RID => $perms,
+  );
+}
+
+/**
+ * Implements hook_ffunctions_devel_variable_set().
+ */
+function ffunctions_devel_ffunctions_devel_variable_set() {
+  // @todo: add performance variables
+  return array(
+    'mail_system' => array(
+      'default-system' => 'DevelMailLog',
+    ),
+  );
+}

@@ -1,0 +1,5 @@
+name = FFunctions
+package = other
+core = 7.x
+dependencies[] = devel
+dependencies[] = ffunctions
