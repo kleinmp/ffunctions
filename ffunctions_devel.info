@@ -1,5 +1,5 @@
-name = FFunctions
-package = other
+name = FFunctions Devel
+package = ffunctions
 core = 7.x
 dependencies[] = devel
 dependencies[] = ffunctions

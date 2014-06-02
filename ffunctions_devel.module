@@ -13,6 +13,7 @@ function ffunctions_devel_setup_dev_site() {
   ffunctions_devel_enable_modules();
   ffunctions_devel_variable_set();
   ffunctions_devel_change_permissions();
+  ffunctions_devel_set_user_passwords();
   drupal_flush_all_caches();
 }
 
@@ -41,7 +42,7 @@ function ffunctions_devel_enable_modules() {
   $modules = ffunctions_devel_invoke_hook(__FUNCTION__);
   if (!empty($modules)) {
     module_enable($modules);
-    devel_set_message(t('Enabled modules @modules', array('@modules' => implode(', ', $modules))));
+    devel_set_message(t('Enabled modules @modules', array('@modules' => implode(', ', $modules))), 'ok');
   }
 }
 
@@ -52,7 +53,7 @@ function ffunctions_devel_disable_modules() {
   $modules = ffunctions_devel_invoke_hook(__FUNCTION__);
   if (!empty($modules)) {
     module_disable($modules);
-    devel_set_message(t('Disabled modules @modules', array('@modules' => implode(', ', $modules))));
+    devel_set_message(t('Disabled modules @modules', array('@modules' => implode(', ', $modules))), 'ok');
   }
 }
 
@@ -65,7 +66,7 @@ function ffunctions_devel_variable_set() {
     foreach ($vars as $var => $value) {
       variable_set($var, $value);
       $message_value = (is_array($value) || is_object($value)) ? print_r($value, TRUE) : $value;
-      devel_set_message(t('Set variable @variable to @value', array('@variable' => $var, '@value' => $message_value)));
+      devel_set_message(t('Set variable @variable to @value', array('@variable' => $var, '@value' => $message_value)), 'ok');
     }
   }
 }
@@ -75,16 +76,12 @@ function ffunctions_devel_variable_set() {
  */
 function ffunctions_devel_change_permissions() {
   $perms = ffunctions_devel_invoke_hook(__FUNCTION__);
-  
-  if (!empty($perms)) {
-    user_role_change_permissions($rid, $permissions = array());
-  }
 
-   // Write the updated permissions.
+  // Write the updated permissions.
   foreach (user_roles() as $rid => $role) {
-    if (isset($perms[$rid])) {
-      user_role_change_permissions($rid, $perms[$rid]);
-      devel_set_message(t('Set new permissions on role @rid - @perms', array('@rid' => $rid, '@perms' => print_r($perms[$rid], TRUE))));
+    if (isset($perms[$role])) {
+      user_role_change_permissions($rid, $perms[$role]);
+      devel_set_message(t('Set new permissions on role @role - @perms', array('@role' => $role, '@perms' => print_r($perms[$role], TRUE))), 'ok');
     }
   }
 }
@@ -94,13 +91,13 @@ function ffunctions_devel_change_permissions() {
  */
 function ffunctions_devel_set_user_passwords() {
   $accounts = ffunctions_devel_invoke_hook(__FUNCTION__);
-  
+
   if (!empty($accounts)) {
     foreach ($accounts as $name => $pass) {
       $account = user_load_by_name($name);
       if (!empty($account)) {
         if (user_save($account, array('pass' => $pass))) {
-          devel_set_message(t('Set password on @name', array('@name' => $name)));
+          devel_set_message(t('Set password on @name', array('@name' => $name)), 'ok');
         }
         else {
           devel_set_message(t('Failed setting password on @name', array('@name' => $name)));
@@ -114,7 +111,7 @@ function ffunctions_devel_set_user_passwords() {
 /** Hook Implementations **/
 
 /**
- * Implements ffunctions_devel_set_user_passwords().
+ * Implements hook_ffunctions_devel_set_user_passwords().
  */
 function ffunctions_devel_ffunctions_devel_set_user_passwords() {
   return array(
@@ -133,8 +130,8 @@ function ffunctions_devel_ffunctions_devel_change_permissions() {
     'switch users' => 'switch users',
   );
   return array(
-    DRUPAL_ANONYMOUS_RID => $perms,
-    DRUPAL_AUTHENTICATED_RID => $perms,
+    'anonymous user' => $perms,
+    'authenticated user' => $perms,
   );
 }
 
