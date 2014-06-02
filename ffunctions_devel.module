@@ -139,10 +139,12 @@ function ffunctions_devel_ffunctions_devel_change_permissions() {
  * Implements hook_ffunctions_devel_variable_set().
  */
 function ffunctions_devel_ffunctions_devel_variable_set() {
-  // @todo: add performance variables
   return array(
     'mail_system' => array(
       'default-system' => 'DevelMailLog',
     ),
+    'error_level' => ERROR_REPORTING_DISPLAY_SOME,
+    'preprocess_css' => FALSE,
+    'preprocess_js' => FALSE,
   );
 }
