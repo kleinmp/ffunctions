@@ -16,6 +16,7 @@
  *  The message to log.  If this is an array or obejct, then send print_r($variable, TRUE).
  */
 function ffunctions_log_message($log, $message) {
+  $message = (is_object($message) || is_array($message)) ? print_r($message, TRUE) : $message;
   file_put_contents($log, date('c') . ' - ' . $message, FILE_APPEND);
 }
 

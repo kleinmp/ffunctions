@@ -4,11 +4,14 @@
  * @file
  *  Module that contains helpful utility functions.
  */
- 
+
 require_once 'ffunctions.inc';
 
 /**
+ * Log a message to a file.
  *
+ * @param mixed $mesage
+ *  The message or data to log.
  */
 function ffunctions_drupal_log_message($message) {
   if (!$log = variable_get('ffunctions_log', FALSE)) {
