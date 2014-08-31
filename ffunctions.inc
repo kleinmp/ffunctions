@@ -170,3 +170,31 @@ function ffunctions_cidr_match($ip, $range) {
 function ffunctions_deep_clone($object) {
   return unserialize(serialize($object));
 }
+
+/**
+ * Replaces all words in a string with the provided word.
+ *
+ *  Note that anything within an html tag is not touched.
+ *
+ * @param string $string
+ *  The string to modify.
+ * @param string $hodor
+ *  The word to replace all words.
+ *
+ * @return string
+ *  The modified string.
+ */
+function ffunctions_hodor_filter_process($string, $hodor) {
+  $pattern = '/[^<>\s]+(?!([^<]+)?>)/m';
+  $filtered_string = preg_replace_callback($pattern, function($matches) use ($hodor) {
+    if (ctype_upper($matches[0][0])) {
+      if (ctype_upper($matches[0][strlen($matches[0] - 1)])) {
+        return strtoupper($hodor);
+      }
+      return ucfirst($hodor);
+    }
+    return $hodor;
+  },
+  $string);
+  return $filtered_string;
+}

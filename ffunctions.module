@@ -42,3 +42,60 @@ function ffunctions_date_is_all_day($date, $granularity = 'second') {
   $to = $date['value'] == $date['value2'] ? $from :  ffunctions_get_formatted_date($date['value2'], $format, $date['timezone'], $date['timezone_db']);
   return date_is_all_day($from, $to, $granularity);
 }
+
+/**
+ * Implements hook_filter_info().
+ */
+function ffunctions_filter_info() {
+  $filters = array();
+  $filters['ffunctions_hodor'] = array(
+    'title' => t('HODOR'),
+    'process callback' => 'ffunctions_hodor_drupal_filter_process',
+    'tips callback' => '_ffunctions_hodor_filter_tips',
+    'settings callback' => '_ffunctions_hodor_filter_settings',
+    'default settings' => array(
+      'hodor' => 'hodor',
+    ),
+    'weight' => -20,
+  );
+  return $filters;
+}
+
+/**
+ * Implements callback_filter_process().
+ *
+ * Provides filtering of input into accepted HODOR.
+ */
+function ffunctions_hodor_drupal_filter_process($string, $filter) {
+  return ffunctions_hodor_filter_process($string, $filter->settings['hodor']);
+}
+
+/**
+ * Implements callback_filter_tips().
+ *
+ * Provides help for the HODOR filter.
+ *
+ * @see ffunctions_filter_info()
+ */
+function _ffunctions_hodor_filter_tips($filter, $format, $long = FALSE) {
+  return ucfirst($filter->settings['hodor']);
+}
+
+/**
+ * Implements callback_filter_settings().
+ *
+ * Filter settings callback for the HODOR content filter.
+ */
+function _ffunctions_hodor_filter_settings($form, &$form_state, $filter, $format, $defaults) {
+  $settings = array();
+  $filter->settings += $defaults;
+
+  $settings['hodor'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Hodor'),
+    '#default_value' => $filter->settings['hodor'],
+    '#maxlength' => 30,
+    '#description' => t('Hodor hodor. Hodor.'),
+  );
+  return $settings;
+}
