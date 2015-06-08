@@ -6,6 +6,56 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function ffunctions_devel_menu() {
+  $items = array();
+  // @todo: Make these %ffunctions_devel_entity_type_load/%ffunction_devel_entity__load?
+  $items['admin/ffunctions/devel/%/%'] = array(
+    // @todo: title callback based on entity type
+    'title' => 'Devel Load',
+    'page callback' => 'ffunctions_devel_load_page',
+    'page arguments' => array(3, 4),
+    'access arguments' => array('access devel information'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Wrapper around entity_load.
+ * @todo: this is only necessary if we use this for loading from the menu.
+ *
+ * @param string $entity_type
+ *  The entity type to load, e.g. node or user.
+ * @param array $entity_ids
+ *  An array of entity IDs.
+ *
+ * @return
+ *   An array of entity objects indexed by their ids. When no results are
+ *   found, an empty array is returned.
+ *
+ * @see entity_load().
+ */
+function ffunctions_devel_load($entity_type, $entity_ids) {
+  return entity_load($entity_type, $entity_ids);
+}
+
+/**
+ * Build a devel loaded object page.
+ *
+ * @see devel_load_object().
+ */
+function ffunctions_devel_load_page($entity_type, $entity_ids) {
+  module_load_include('pages.inc', 'devel');
+  if (!is_array($entity_ids)) {
+    $entity_ids = explode(',', $entity_ids);
+  }
+  $entities = ffunctions_devel_load($entity_type, $entity_ids);
+  return devel_load_object($entity_type, reset($entities));
+}
+
+/**
  * Set up the configuration for local development.
  */
 function ffunctions_devel_setup_dev_site() {
