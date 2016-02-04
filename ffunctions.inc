@@ -186,6 +186,7 @@ function ffunctions_deep_clone($object) {
  */
 function ffunctions_hodor_filter_process($string, $hodor) {
   $pattern = '/[^<>\s]+(?!([^<]+)?>)/m';
+  $pattern = '/[^<>(\s|\.|\!|\?|\,)]+(?!([^<]+)?>)/m';
   $filtered_string = preg_replace_callback($pattern, function($matches) use ($hodor) {
     if (ctype_upper($matches[0][0])) {
       if (ctype_upper($matches[0][strlen($matches[0] - 1)])) {
