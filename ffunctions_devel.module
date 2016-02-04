@@ -62,8 +62,8 @@ function ffunctions_devel_setup_dev_site() {
   ffunctions_devel_disable_modules();
   ffunctions_devel_enable_modules();
   ffunctions_devel_variable_set();
-  ffunctions_devel_change_permissions();
-  ffunctions_devel_set_user_passwords();
+  ffunctions_devel_permissions_set();
+  ffunctions_devel_user_passwords_set();
   drupal_flush_all_caches();
 }
 
@@ -89,7 +89,7 @@ function ffunctions_devel_invoke_hook($hook) {
  * Get a list of modules to enable and do it.
  */
 function ffunctions_devel_enable_modules() {
-  $modules = ffunctions_devel_invoke_hook(__FUNCTION__);
+  $modules = variable_get(__FUNCTION__, array());
   if (!empty($modules)) {
     module_enable($modules);
     devel_set_message(t('Enabled modules @modules', array('@modules' => implode(', ', $modules))), 'ok');
@@ -100,7 +100,7 @@ function ffunctions_devel_enable_modules() {
  * Get a list of modules to disable and do it.
  */
 function ffunctions_devel_disable_modules() {
-  $modules = ffunctions_devel_invoke_hook(__FUNCTION__);
+  $modules = variable_get(__FUNCTION__, array());
   if (!empty($modules)) {
     module_disable($modules);
     devel_set_message(t('Disabled modules @modules', array('@modules' => implode(', ', $modules))), 'ok');
@@ -111,7 +111,15 @@ function ffunctions_devel_disable_modules() {
  * Set variable values.
  */
 function ffunctions_devel_variable_set() {
-  $vars = ffunctions_devel_invoke_hook(__FUNCTION__);
+  $vars = variable_get('ffunctions_devel_variables', array(
+    'mail_system' => array(
+      'default-system' => 'DevelMailLog',
+    ),
+    'error_level' => ERROR_REPORTING_DISPLAY_ALL,
+    'preprocess_css' => FALSE,
+    'preprocess_js' => FALSE,
+  ));
+
   if (!empty($vars)) {
     foreach ($vars as $var => $value) {
       variable_set($var, $value);
@@ -124,8 +132,19 @@ function ffunctions_devel_variable_set() {
 /**
  * Get a list of permissions to add/revoke.
  */
-function ffunctions_devel_change_permissions() {
-  $perms = ffunctions_devel_invoke_hook(__FUNCTION__);
+function ffunctions_devel_permissions_set() {
+  $perms = variable_get('ffunctions_devel_permissions', array(
+    'anonymous user' => array(
+      'access devel information' => 'access devel information',
+      'execute php code' => 'execute php code',
+      'switch users' => 'switch users',
+    ),
+    'authenticated user' => array(
+      'access devel information' => 'access devel information',
+      'execute php code' => 'execute php code',
+      'switch users' => 'switch users',
+    ),
+  ));
 
   // Write the updated permissions.
   foreach (user_roles() as $rid => $role) {
@@ -139,8 +158,8 @@ function ffunctions_devel_change_permissions() {
 /**
  * Set passwords on users.
  */
-function ffunctions_devel_set_user_passwords() {
-  $accounts = ffunctions_devel_invoke_hook(__FUNCTION__);
+function ffunctions_devel_user_passwords_set() {
+  $accounts = variable_get('ffunctions_devel_user_passwords', array('admin' => 'admin'));
 
   if (!empty($accounts)) {
     foreach ($accounts as $name => $pass) {
@@ -155,46 +174,4 @@ function ffunctions_devel_set_user_passwords() {
       }
     }
   }
-}
-
-
-/** Hook Implementations **/
-
-/**
- * Implements hook_ffunctions_devel_set_user_passwords().
- */
-function ffunctions_devel_ffunctions_devel_set_user_passwords() {
-  return array(
-    'admin' => 'admin',
-  );
-}
-
-/**
- * Implements hook_ffunctions_devel_change_permissions()/
- */
-function ffunctions_devel_ffunctions_devel_change_permissions() {
-  // @todo: see hook_modules_installed in case needed here.
-  $perms = array(
-    'access devel information' => 'access devel information',
-    'execute php code' => 'execute php code',
-    'switch users' => 'switch users',
-  );
-  return array(
-    'anonymous user' => $perms,
-    'authenticated user' => $perms,
-  );
-}
-
-/**
- * Implements hook_ffunctions_devel_variable_set().
- */
-function ffunctions_devel_ffunctions_devel_variable_set() {
-  return array(
-    'mail_system' => array(
-      'default-system' => 'DevelMailLog',
-    ),
-    'error_level' => ERROR_REPORTING_DISPLAY_SOME,
-    'preprocess_css' => FALSE,
-    'preprocess_js' => FALSE,
-  );
 }
