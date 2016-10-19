@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * Install file for ffunction_devel module.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function ffunctions_devel_enable() {
+  $results = array();
+  $callbacks = variable_get('ffunctions_devel_module_enable_callbacks', array());
+  if (!empty($callbacks)) {
+    foreach ($callbacks as $callback) {
+      if (function_exists($callback['callback'])) {
+        $results[] = call_user_func_array($callback['callback'], $callback['args']);
+      }
+    }
+  }
+}
